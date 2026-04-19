@@ -1,4 +1,4 @@
-package dev.mr3.sb.ServiceLayer;
+package dev.mr3.sb.repository;
 import dev.mr3.sb.model.User;
 
 import java.sql.Connection;

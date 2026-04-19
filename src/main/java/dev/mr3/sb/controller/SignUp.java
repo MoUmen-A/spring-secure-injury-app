@@ -1,7 +1,7 @@
 package dev.mr3.sb.controller;
 
 import dev.mr3.sb.model.User;
-import dev.mr3.sb.ServiceLayer.UserDao;
+import dev.mr3.sb.repository.UserDao;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -13,7 +13,7 @@ import java.io.IOException;
 
 
 @WebServlet("/signup")
-public class SignUpServlet extends HttpServlet {
+public class SignUp extends HttpServlet {
 
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
