@@ -1,0 +1,64 @@
+.btn {
+    /* Layout */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+
+    /* Typography */
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+
+    /* Visuals */
+    background-color: green;
+    color: #ffffff;
+    border: none;
+    border-radius: 0.5rem;
+
+    /* Interaction */
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    user-select: none;
+}
+.btn:hover {
+    background-color: #16a34a;
+}
+.btn:active {
+    transform: scale(0.98);
+}
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-red {
+    background-color: #dc2626; /* A standard "danger" red */
+    color: white;
+}
+.btn-red:hover {
+    background-color: #b91c1c; /* Slightly darker for the hover state */
+}
+.btn-red:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #dc2626; /* Accessible focus ring */
+}
+.btn-red:active {
+    background-color: #991b1b; /* Even darker for the active state */
+}
+
+.btn-blue{
+    background-color: #3b82f6; /* A standard "primary" blue */
+    color: white;}
+.btn-blue:hover {
+    background-color: #2563eb;}
+.btn-blue:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #3b82f6; /* Accessible focus ring */
+}
+.btn-blue:active {
+    background-color: #1e40af; /* Even darker for the active state */
+}
+
