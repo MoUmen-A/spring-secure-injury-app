@@ -1,7 +1,6 @@
 package dev.mr3.sb.controller;
 
 import dev.mr3.sb.model.Patient;
-import dev.mr3.sb.model.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;

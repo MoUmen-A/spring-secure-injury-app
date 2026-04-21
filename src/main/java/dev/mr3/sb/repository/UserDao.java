@@ -1,5 +1,6 @@
 package dev.mr3.sb.repository;
-import dev.mr3.sb.model.User;
+
+import dev.mr3.sb.model.Patient;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -14,7 +15,7 @@ public class UserDao {
 
     private static final String INSERT_USER_SQL = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
 
-    static public boolean registerUser(User user) {
+    static public boolean registerUser(Patient user) {
         boolean isSaved = false;
 
         try (Connection connection = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
