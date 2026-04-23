@@ -1,0 +1,177 @@
+@startuml
+' --- Optimization Settings ---
+allowmixing
+skinparam monochrome true
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam ranksep 100
+
+title Injury Assist System - Final Comprehensive Architecture
+
+' ============================================
+' 1. THE GUI LAYER (Thymeleaf Templates)
+' ============================================
+package "src/main/resources/templates" {
+    class "login.html" as LoginUI <<Boundary>>
+    class "injury-form.html" as FormUI <<Boundary>>
+    class "result.html" as ResultUI <<Boundary>>
+    class "report-view.html" as ReportUI <<Boundary>>
+}
+
+' ============================================
+' 2. THE CONTROLLER LAYER (The Bridge)
+' ============================================
+package "com.injuryassist.controller" {
+    class AuthController <<Controller>> {
+        - AuthService authService
+        + login()
+        + signup()
+    }
+    class InjuryController <<Controller>> {
+        - InjuryService injuryService
+        + showInjuryForm()
+        + submitInjury()
+    }
+    class AppointmentController <<Controller>> {
+        - AppointmentService appointmentService
+        + showAvailableSlots()
+        + bookAppointment()
+    }
+}
+
+' ============================================
+' 3. THE SERVICE LAYER (Business Rules)
+' ============================================
+package "com.injuryassist.service" {
+    class AuthService <<Service>> {
+        - PatientRepository patientRepo         
+        + authenticate()
+        + register()
+    }
+    class InjuryService <<Service>> {
+        - InjuryRepository injuryRepo
+        - DoctorRepository doctorRepo
+        + processInjuryAssessment(Injury)
+        - checkCriticality(Injury) : boolean
+    }
+    class AppointmentService <<Service>> {
+        - AppointmentRepository appointmentRepo
+        + scheduleAppointment()
+    }
+    class ReportService <<Service>> {
+        - ReportRepository reportRepo
+        + generateMedicalReport(Appointment) : Report
+    }
+}
+
+' ============================================
+' 4. THE REPOSITORY LAYER (Data Access)
+' ============================================
+package "com.injuryassist.repository" {
+    interface PatientRepository <<Interface>>
+    interface InjuryRepository <<Interface>>
+    interface DoctorRepository <<Interface>>
+    interface AppointmentRepository <<Interface>>
+    interface ReportRepository <<Interface>>
+}
+
+' ============================================
+' 5. THE MODEL LAYER (Database Entities)
+' ============================================
+package "com.injuryassist.model" {
+    abstract class Person <<MappedSuperclass>> {
+        - name : String
+        - age : int
+        - contactNo : String
+        - gender : Boolean
+        - address : String
+    }
+
+    class Patient <<Entity>> {
+        - username : String
+        - password : String
+        + addInjury(injury)
+    }
+
+    class Injury <<Entity>> {
+        - id : Long
+        - isCritical : boolean
+        - recommendation : String
+        - athleteDescription : String
+    }
+
+    class Appointment <<Entity>> {
+        - id : Long
+        - appointmentDate : LocalDateTime
+        - status : String
+    }
+
+    class Report <<Entity>> {
+        - id : Long
+        - diagnosis : String
+        - treatmentPlan : String
+        - generatedDate : LocalDateTime
+        + compileFinalReport()
+    }
+
+    abstract class Doctor <<MappedSuperclass>> {
+        - name : String
+        - isAvailable : boolean
+        - availabilitySlot : String
+    }
+
+    class GeneralDoctor <<Entity>> {
+        - clinicRoomNumber : String
+        + provideGeneralAdvice(Injury) : String
+    }
+
+    class SpecializedDoctor <<Entity>> {
+        - specialty : String
+        - certificationLevel : String
+        + performSpecializedAssessment(Injury) : Report
+    }
+
+    enum BodyPart <<Enumeration>> {
+        THIGH, KNEE, ANKLE, SHOULDER
+    }
+
+    ' Inheritance: Everyone is a Person
+    Person <|-- Patient
+    Person <|-- Doctor
+    Doctor <|-- GeneralDoctor
+    Doctor <|-- SpecializedDoctor
+    
+    ' Relationships
+    Patient "1" *-- "*" Injury : "has"
+    Patient "1" *-- "*" Appointment : "books"
+    Appointment "*" -- "1" Doctor : "assigned to"
+    Appointment "1" *-- "1" Report : "generates"
+    Injury -- BodyPart : "references"
+}
+
+' ============================================
+' RELATIONSHIPS & DATA FLOW
+' ============================================
+
+' UI to Controller
+FormUI ..> InjuryController : "POST /submit"
+ResultUI ..> AppointmentController : "POST /book"
+
+' Dependency Injection (@Autowired)
+InjuryController --> InjuryService
+AuthController --> AuthService
+AppointmentController --> AppointmentService
+InjuryService --> InjuryRepository
+InjuryService --> DoctorRepository
+AppointmentService --> AppointmentRepository
+ReportService --> ReportRepository
+
+' Data Mapping
+PatientRepository ..> Patient
+InjuryRepository ..> Injury
+DoctorRepository ..> Doctor
+AppointmentRepository ..> Appointment
+ReportRepository ..> Report
+
+@enduml
