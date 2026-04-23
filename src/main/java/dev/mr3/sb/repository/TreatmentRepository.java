@@ -1,4 +1,4 @@
 package dev.mr3.sb.repository;
 
-public interface TreatmentRepository {
+public class TreatmentRepository {
 }
