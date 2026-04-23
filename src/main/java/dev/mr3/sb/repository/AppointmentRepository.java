@@ -1,4 +1,4 @@
 package dev.mr3.sb.repository;
 
-public interface AppointmentRepository {
+public class AppointmentRepository {
 }
