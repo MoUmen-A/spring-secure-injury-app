@@ -1,4 +1,4 @@
 package dev.mr3.sb.repository;
 
-public interface ReportRepository {
+public class ReportRepository {
 }
