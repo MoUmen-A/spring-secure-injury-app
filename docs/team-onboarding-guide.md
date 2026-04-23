@@ -2,6 +2,84 @@
 
 This project is intentionally scaffolded. The file structure is ready, but business logic is not implemented yet.
 
+## Folder Structure
+
+```text
+Clinic/
+|- docs/
+|  |- team-onboarding-guide.md
+|  \- uml/
+|     \- injury-assist-system-architecture.puml
+|- src/
+|  |- main/
+|  |  |- java/dev/mr3/sb/
+|  |  |  |- SbApplication.java
+|  |  |  |- controller/
+|  |  |  |- service/
+|  |  |  |- repository/
+|  |  |  \- model/
+|  |  \- resources/
+|  |     |- templates/
+|  |     \- static/
+|  \- test/
+|     \- java/dev/mr3/sb/
+|- pom.xml
+|- mvnw
+\- mvnw.cmd
+```
+
+## Ownership Boundaries (Avoid Overlap)
+
+- controller/: only routing and HTTP input/output mapping.
+- service/: only business rules and use-case orchestration.
+- repository/: only database access contracts and query methods.
+- model/: only domain entities, enums, and relations.
+- resources/templates/: only page markup and UI rendering.
+
+When a file touches more than one boundary, split the work before merging.
+
+## Naming Conventions
+
+- Class naming: PascalCase.
+- Method and field naming: camelCase.
+- Package naming: lowercase only.
+- Service names: *Feature*Service (example: InjuryService).
+
+- Model names: singular nouns (example: Appointment, Report).
+- Enum names: singular noun, UPPER_SNAKE_CASE values (example: BodyPart, KNEE).
+- HTML template files: kebab-case for new files (example: report-view.html).
+
+## Branch And Commit Rules (Conflict Prevention)
+
+- One feature per branch.
+- One branch owner.
+- One pull request per feature slice.
+- Keep pull requests small (recommended: 5-15 files).
+- Rebase or merge from main daily before adding new commits.
+- Never mix refactor + feature + formatting in one pull request.
+
+Commit style:
+
+- feat: for new behavior.
+- fix: for bug fixes.
+- refactor: for structural changes without behavior changes.
+- docs: for guide and documentation updates.
+- test: for tests only.
+
+Example commit messages:
+
+- feat: add login request mapping in auth controller
+- refactor: move validation logic from controller to service
+- docs: update folder ownership rules
+
+## Pull Request Checklist
+
+- I only changed files in my assigned layer.
+- I used agreed naming conventions.
+- I did not rename unrelated files.
+- I updated docs when adding or renaming folders/files.
+- I resolved conflicts locally before requesting review.
+
 ## Current Architecture
 
 - Controllers: request entry points only
@@ -50,14 +128,9 @@ This project is intentionally scaffolded. The file structure is ready, but busin
 - Model relations are valid and mapped.
 - Template renders expected output.
 
-## Quick Start Commands
+## Suggested Team Working Agreement
 
-```powershell
-# run app
-.\mvnw.cmd spring-boot:run
-
-# run tests
-.\mvnw.cmd test
-```
-
-Note: your machine must use JDK 21 because `pom.xml` is configured with `<java.version>21</java.version>`.
+- Pick one feature vertical each sprint (Auth, Injury, Appointment, Report).
+- Each vertical owner edits only its controller, service, repository, model, and templates.
+- Cross-cutting changes (shared model fields, package moves) require a short design note in docs first.
+- If two people must touch the same file, agree on method-level ownership before coding.
