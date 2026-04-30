@@ -3,6 +3,10 @@ package dev.mr3.sb.model;
 import jakarta.persistence.*;
 
 @Entity
+/**
+ * Injury entity describing type, body part, and patient notes.
+ * Keywords: entity, injury, assessment
+ */
 public class Injury {
 
     @Id

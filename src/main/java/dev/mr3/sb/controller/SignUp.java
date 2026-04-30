@@ -6,6 +6,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
+/**
+ * Renders the signup page and handles new account registration.
+ * Keywords: controller, signup, registration
+ */
 public class SignUp {
 
 	@GetMapping("/signup")

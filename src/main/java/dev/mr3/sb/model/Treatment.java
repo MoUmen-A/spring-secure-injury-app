@@ -3,6 +3,10 @@ package dev.mr3.sb.model;
 import jakarta.persistence.*;
 
 @Entity
+/**
+ * Treatment entity and lookup helper for injury suggestions.
+ * Keywords: entity, treatment, suggestion
+ */
 public class Treatment {
 
     @Id

@@ -1,176 +1,224 @@
-@startuml
-' --- Optimization Settings ---
-allowmixing
+@startuml InjuryAssist_Simple
 skinparam monochrome true
 skinparam shadowing false
-skinparam packageStyle rectangle
 skinparam classAttributeIconSize 0
-skinparam ranksep 100
+skinparam linetype ortho
+skinparam ranksep 80
+skinparam nodesep 50
+title Injury Assist System — Student Version
 
-title Injury Assist System - Final Comprehensive Architecture
-
-' ============================================
-' 1. THE GUI LAYER (Thymeleaf Templates)
-' ============================================
-package "src/main/resources/templates" {
-    class "login.html" as LoginUI <<Boundary>>
-    class "injury-form.html" as FormUI <<Boundary>>
-    class "result.html" as ResultUI <<Boundary>>
-    class "report-view.html" as ReportUI <<Boundary>>
+' ─────────────────────────────────────────
+' ENUMS
+' ─────────────────────────────────────────
+enum BodyPart {
+  THIGH
+  KNEE
+  ANKLE
+  SHOULDER
 }
 
-' ============================================
-' 2. THE CONTROLLER LAYER (The Bridge)
-' ============================================
-package "com.injuryassist.controller" {
-    class AuthController <<Controller>> {
-        - AuthService authService
-        + login()
-        + signup()
-    }
-    class InjuryController <<Controller>> {
-        - InjuryService injuryService
-        + showInjuryForm()
-        + submitInjury()
-    }
-    class AppointmentController <<Controller>> {
-        - AppointmentService appointmentService
-        + showAvailableSlots()
-        + bookAppointment()
-    }
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
 }
 
-' ============================================
-' 3. THE SERVICE LAYER (Business Rules)
-' ============================================
-package "com.injuryassist.service" {
-    class AuthService <<Service>> {
-        - PatientRepository patientRepo
-        + authenticate()
-        + register()
-    }
-    class InjuryService <<Service>> {
-        - InjuryRepository injuryRepo
-        - DoctorRepository doctorRepo
-        + processInjuryAssessment(Injury)
-        - checkCriticality(Injury) : boolean
-    }
-    class AppointmentService <<Service>> {
-        - AppointmentRepository appointmentRepo
-        + scheduleAppointment()
-    }
-    class ReportService <<Service>> {
-        - ReportRepository reportRepo
-        + generateMedicalReport(Appointment) : Report
-    }
-}
-
-' ============================================
-' 4. THE REPOSITORY LAYER (Data Access)
-' ============================================
-package "com.injuryassist.repository" {
-    interface PatientRepository <<Interface>>
-    interface InjuryRepository <<Interface>>
-    interface DoctorRepository <<Interface>>
-    interface AppointmentRepository <<Interface>>
-    interface ReportRepository <<Interface>>
-}
-
-' ============================================
-' 5. THE MODEL LAYER (Database Entities)
-' ============================================
+' ─────────────────────────────────────────
+' MODEL LAYER
+' ─────────────────────────────────────────
 package "com.injuryassist.model" {
-    abstract class Person <<MappedSuperclass>> {
-        - name : String
-        - age : int
-        - contactNo : String
-        - gender : Boolean
-        - address : String
-    }
 
-    class Patient <<Entity>> {
-        - username : String
-        - password : String
-        + addInjury(injury)
-    }
+  abstract class Person {
+    # name      : String
+    # age       : int
+    # contactNo : String
+    # gender    : Boolean
+    # address   : String
+  }
 
-    class Injury <<Entity>> {
-        - id : Long
-        - isCritical : boolean
-        - recommendation : String
-        - athleteDescription : String
-    }
+  class Patient {
+    - id       : Long
+    - username : String
+    - password : String
+    + addInjury(injury : Injury) : void
+  }
 
-    class Appointment <<Entity>> {
-        - id : Long
-        - appointmentDate : LocalDateTime
-        - status : String
-    }
+  abstract class Doctor {
+    # id               : Long
+    # isAvailable      : boolean
+    # availabilitySlot : String
+  }
 
-    class Report <<Entity>> {
-        - id : Long
-        - diagnosis : String
-        - treatmentPlan : String
-        - generatedDate : LocalDateTime
-        + compileFinalReport()
-    }
+  class GeneralDoctor {
+    - clinicRoomNumber : String
+    + provideAdvice(injury : Injury) : String
+  }
 
-    abstract class Doctor <<MappedSuperclass>> {
-        - name : String
-        - isAvailable : boolean
-        - availabilitySlot : String
-    }
+  class SpecializedDoctor {
+    - specialty          : String
+    - certificationLevel : String
+    + performAssessment(injury : Injury) : String
+  }
 
-    class GeneralDoctor <<Entity>> {
-        - clinicRoomNumber : String
-        + provideGeneralAdvice(Injury) : String
-    }
+  class Injury {
+    - id                 : Long
+    - isCritical         : boolean
+    - recommendation     : String
+    - athleteDescription : String
+    - bodyPart           : BodyPart
+  }
 
-    class SpecializedDoctor <<Entity>> {
-        - specialty : String
-        - certificationLevel : String
-        + performSpecializedAssessment(Injury) : Report
-    }
+  class Appointment {
+    - id              : Long
+    - appointmentDate : LocalDateTime
+    - status          : AppointmentStatus
+  }
 
-    enum BodyPart <<Enumeration>> {
-        THIGH, KNEE, ANKLE, SHOULDER
-    }
-    ' Inheritance: Everyone is a Person
-        Person <|-- Patient
-        Person <|-- Doctor
-        Doctor <|-- GeneralDoctor
-        Doctor <|-- SpecializedDoctor
+  class Report {
+    - id            : Long
+    - diagnosis     : String
+    - treatmentPlan : String
+    - generatedDate : LocalDateTime
+  }
 
-        ' Relationships
-        Patient "1" *-- "*" Injury : "has"
-        Patient "1" *-- "*" Appointment : "books"
-        Appointment "*" -- "1" Doctor : "assigned to"
-        Appointment "1" *-- "1" Report : "generates"
-        Injury -- BodyPart : "references"
-    }
+  ' Inheritance
+  Person       <|-- Patient
+  Person       <|-- Doctor
+  Doctor       <|-- GeneralDoctor
+  Doctor       <|-- SpecializedDoctor
 
-    ' ============================================
-    ' RELATIONSHIPS & DATA FLOW
-    ' ============================================
+  ' Relationships
+  Patient     "1" *-- "0..*" Injury      : has
+  Patient     "1" *-- "0..*" Appointment : books
+  Appointment "0..*" --> "1" Doctor      : assigned to
+  Appointment "1"    *-- "0..1" Report   : generates
+  Injury       --> BodyPart              : references
+  Appointment  --> AppointmentStatus     : tracks
+}
 
-    ' UI to Controller
-    FormUI ..> InjuryController : "POST /submit"
-    ResultUI ..> AppointmentController : "POST /book"
+' ─────────────────────────────────────────
+' REPOSITORY LAYER
+' ─────────────────────────────────────────
+package "com.injuryassist.repository" {
+  interface PatientRepository
+  interface InjuryRepository
+  interface DoctorRepository
+  interface AppointmentRepository
+  interface ReportRepository
+}
 
-    ' Dependency Injection (@Autowired)
-    InjuryController --> InjuryService
-    AuthController --> AuthService
-    AppointmentController --> AppointmentService
-    InjuryService --> InjuryRepository
-    InjuryService --> DoctorRepository
-    AppointmentService --> AppointmentRepository
-    ReportService --> ReportRepository
+' ─────────────────────────────────────────
+' SERVICE LAYER
+' ─────────────────────────────────────────
+package "com.injuryassist.service" {
 
-    ' Data Mapping
-    PatientRepository ..> Patient
-    InjuryRepository ..> Injury
-    DoctorRepository ..> Doctor
-    AppointmentRepository ..> Appointment
-    ReportRepository ..> Report
+  class AuthService {
+    - patientRepo : PatientRepository
+    + authenticate(username, password) : Patient
+    + register(patient : Patient) : void
+  }
 
-    @enduml
+  class InjuryService {
+    - injuryRepo : InjuryRepository
+    + processAssessment(injury : Injury) : String
+    - checkCriticality(injury : Injury) : boolean
+  }
+
+  class AppointmentService {
+    - appointmentRepo : AppointmentRepository
+    - doctorRepo      : DoctorRepository
+    + getAvailableSlots() : List<Appointment>
+    + book(patientId : Long, doctorId : Long) : Appointment
+  }
+
+  class ReportService {
+    - reportRepo : ReportRepository
+    + generate(appointment : Appointment) : Report
+    + getByAppointmentId(id : Long) : Report
+  }
+
+  ' ← the only fix: ReportService wired to AppointmentService
+  AppointmentService --> ReportService : triggers after booking
+}
+
+' ─────────────────────────────────────────
+' CONTROLLER LAYER
+' ─────────────────────────────────────────
+package "com.injuryassist.controller" {
+
+  class AuthController {
+    - authService : AuthService
+    + login()  : String
+    + signup() : String
+    + logout() : String
+  }
+
+  class InjuryController {
+    - injuryService : InjuryService
+    + showForm()        : String
+    + submitInjury()    : String
+  }
+
+  class AppointmentController {
+    - appointmentService : AppointmentService
+    + showSlots()        : String
+    + book()             : String
+  }
+
+  ' ← the only fix: one new controller so report-view has an owner
+  class ReportController {
+    - reportService : ReportService
+    + viewReport(appointmentId : Long) : String
+  }
+}
+
+' ─────────────────────────────────────────
+' UI TEMPLATES
+' ─────────────────────────────────────────
+package "templates" {
+  class "login.html"        as T1 <<Boundary>>
+  class "signup.html"       as T2 <<Boundary>>
+  class "injury-form.html"  as T3 <<Boundary>>
+  class "result.html"       as T4 <<Boundary>>
+  class "slots.html"        as T5 <<Boundary>>
+  class "report-view.html"  as T6 <<Boundary>>
+}
+
+' ─────────────────────────────────────────
+' WIRING — UI to Controllers
+' ─────────────────────────────────────────
+T1 ..> AuthController        : POST /auth/login
+T2 ..> AuthController        : POST /auth/signup
+T3 ..> InjuryController      : POST /injury/submit
+T4 ..> AppointmentController : POST /appointment/book
+T5 ..> AppointmentController : GET  /appointment/slots
+T6 ..> ReportController      : GET  /report/view
+
+' ─────────────────────────────────────────
+' WIRING — Controllers to Services
+' ─────────────────────────────────────────
+AuthController        --> AuthService
+InjuryController      --> InjuryService
+AppointmentController --> AppointmentService
+ReportController      --> ReportService
+
+' ─────────────────────────────────────────
+' WIRING — Services to Repositories
+' ─────────────────────────────────────────
+AuthService        --> PatientRepository
+InjuryService      --> InjuryRepository
+AppointmentService --> AppointmentRepository
+AppointmentService --> DoctorRepository
+ReportService      --> ReportRepository
+
+' ─────────────────────────────────────────
+' WIRING — Repositories to Entities
+' ─────────────────────────────────────────
+PatientRepository     ..> Patient
+InjuryRepository      ..> Injury
+DoctorRepository      ..> Doctor
+AppointmentRepository ..> Appointment
+ReportRepository      ..> Report
+
+@enduml

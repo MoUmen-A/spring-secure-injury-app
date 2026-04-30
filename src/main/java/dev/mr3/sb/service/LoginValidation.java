@@ -4,6 +4,10 @@ import dev.mr3.sb.model.Patient;
 import org.springframework.stereotype.Service;
 
 @Service
+/**
+ * Validates login input fields before authentication.
+ * Keywords: service, login, validation
+ */
 public class LoginValidation {
     public boolean validateLogin(Patient patient) {
         System.out.println("Patient object: " + patient);

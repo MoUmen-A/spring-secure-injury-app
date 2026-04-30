@@ -8,6 +8,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
+/**
+ * Renders the login page and validates submitted credentials.
+ * Keywords: controller, login, authentication
+ */
 public class Login{
     private final LoginValidation loginValidation;
 

@@ -9,6 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+/**
+ * Patient entity with login credentials and related records.
+ * Keywords: entity, patient, account
+ */
 public class Patient extends Person {
     @Column
     private  String username;

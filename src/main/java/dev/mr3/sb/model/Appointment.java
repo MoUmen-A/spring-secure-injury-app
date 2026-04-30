@@ -4,13 +4,19 @@ import jakarta.persistence.*;
 
 
 @Entity
+/**
+ * Appointment slot entity with day/time scheduling details.
+ * Keywords: entity, appointment, scheduling
+ */
 public class Appointment {
     @Id
     @GeneratedValue
     private Long id;
+
     @Column
     @Enumerated(EnumType.STRING)
     private  Weekday weekday;
+    
     @Column
     private String time;
 

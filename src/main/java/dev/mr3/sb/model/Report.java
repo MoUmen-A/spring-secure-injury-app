@@ -3,6 +3,10 @@ package dev.mr3.sb.model;
 import jakarta.persistence.*;
 
 @Entity
+/**
+ * Report entity linking patient, injury, treatment, and appointment.
+ * Keywords: entity, report, diagnosis
+ */
 public class Report {
 
     @Id
