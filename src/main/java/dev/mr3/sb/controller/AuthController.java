@@ -2,7 +2,7 @@ package dev.mr3.sb.controller;
 
 
 import dev.mr3.sb.model.Patient;
-import dev.mr3.sb.service.LoginValidation;
+import dev.mr3.sb.service.AuthService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.PostMapping;
  * Renders the login page and validates submitted credentials.
  * Keywords: controller, login, authentication
  */
-public class Login{
-    private final LoginValidation loginValidation;
+public class AuthController {
+    private final AuthService authService;
 
-    Login(LoginValidation loginValidation){
-        this.loginValidation=loginValidation;
+    AuthController(AuthService authService){
+        this.authService = authService;
     }
     @GetMapping("/login")
     public String loginPage() {
@@ -25,7 +25,7 @@ public class Login{
 
 @PostMapping("/login")
     public String login(Patient patient) {
-    if (!loginValidation.validateLogin(patient)) {
+    if (!authService.validateLogin(patient)) {
         return "Login";
     }
     return "Dashboard";

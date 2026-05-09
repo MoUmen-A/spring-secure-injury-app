@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
  * Validates login input fields before authentication.
  * Keywords: service, login, validation
  */
-public class LoginValidation {
+public class AuthService {
     public boolean validateLogin(Patient patient) {
         System.out.println("Patient object: " + patient);
         if (patient == null) {
