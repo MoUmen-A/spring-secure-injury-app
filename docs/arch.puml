@@ -1,20 +1,25 @@
-@startuml InjuryAssist_Simple
+@startuml InjuryAssist_Complete
 skinparam monochrome true
 skinparam shadowing false
 skinparam classAttributeIconSize 0
 skinparam linetype ortho
 skinparam ranksep 80
 skinparam nodesep 50
-title Injury Assist System — Student Version
+title Injury Assist System — Complete Architecture
 
 ' ─────────────────────────────────────────
 ' ENUMS
 ' ─────────────────────────────────────────
 enum BodyPart {
-  THIGH
-  KNEE
-  ANKLE
-  SHOULDER
+  THIGH, HAMSTRING, CALF, ANKLE
+  KNEE, FOOT, SHIN, ARM, LEG
+  WRIST, SHOULDER, ELBOW, ACHILLES
+}
+
+enum Weekday {
+  SATURDAY, SUNDAY, MONDAY
+  TUESDAY, WEDNESDAY, THURSDAY
+  FRIDAY
 }
 
 enum AppointmentStatus {
@@ -24,30 +29,32 @@ enum AppointmentStatus {
   CANCELLED
 }
 
+enum Gender {
+  MALE
+  FEMALE
+}
+
 ' ─────────────────────────────────────────
 ' MODEL LAYER
 ' ─────────────────────────────────────────
-package "com.injuryassist.model" {
+package "dev.mr3.sb.model" {
 
   abstract class Person {
-    # name      : String
-    # age       : int
-    # contactNo : String
-    # gender    : Boolean
-    # address   : String
+    # id         : Long
+    # name       : String
+    # age        : int
+    # gender     : Gender
+    # contact_no : String
+    # address    : String
   }
 
   class Patient {
-    - id       : Long
     - username : String
     - password : String
-    + addInjury(injury : Injury) : void
   }
 
   abstract class Doctor {
-    # id               : Long
     # isAvailable      : boolean
-    # availabilitySlot : String
   }
 
   class GeneralDoctor {
@@ -63,60 +70,73 @@ package "com.injuryassist.model" {
 
   class Injury {
     - id                 : Long
-    - isCritical         : boolean
-    - recommendation     : String
+    - type               : String
+    - movable            : boolean
     - athleteDescription : String
-    - bodyPart           : BodyPart
   }
 
   class Appointment {
-    - id              : Long
-    - appointmentDate : LocalDateTime
-    - status          : AppointmentStatus
+    - id     : Long
+    - time   : String
   }
 
   class Report {
-    - id            : Long
-    - diagnosis     : String
-    - treatmentPlan : String
-    - generatedDate : LocalDateTime
+    - id : Long
+  }
+
+  class Treatment {
+    - id                  : Long
+    - injuryType          : String
+    - treatmentSuggestion : String
   }
 
   ' Inheritance
-  Person       <|-- Patient
-  Person       <|-- Doctor
-  Doctor       <|-- GeneralDoctor
-  Doctor       <|-- SpecializedDoctor
+  Person <|-- Patient
+  Person <|-- Doctor
+  Doctor <|-- GeneralDoctor
+  Doctor <|-- SpecializedDoctor
 
   ' Relationships
-  Patient     "1" *-- "0..*" Injury      : has
-  Patient     "1" *-- "0..*" Appointment : books
-  Appointment "0..*" --> "1" Doctor      : assigned to
-  Appointment "1"    *-- "0..1" Report   : generates
-  Injury       --> BodyPart              : references
-  Appointment  --> AppointmentStatus     : tracks
+  Patient      "1" *-- "0..*" Injury      : injuries
+  Patient      "1" *-- "0..*" Appointment : reservations
+  Appointment  "0..*" --> "1" Doctor      : assigned to
+  Report       "1" --> "1" Patient        : patient
+  Report       "1" --> "1" Injury         : injury
+  Report       "1" --> "1" Treatment      : treatment
+  Report       "1" --> "1" Appointment    : appointment
+  Injury       --> BodyPart               : bodyPart
+  Appointment  --> AppointmentStatus      : status
+  Appointment  --> Weekday                : weekday
 }
 
 ' ─────────────────────────────────────────
 ' REPOSITORY LAYER
 ' ─────────────────────────────────────────
-package "com.injuryassist.repository" {
+package "dev.mr3.sb.repository" {
   interface PatientRepository
   interface InjuryRepository
   interface DoctorRepository
   interface AppointmentRepository
   interface ReportRepository
+  interface TreatmentRepository
 }
 
 ' ─────────────────────────────────────────
 ' SERVICE LAYER
 ' ─────────────────────────────────────────
-package "com.injuryassist.service" {
+package "dev.mr3.sb.service" {
 
   class AuthService {
     - patientRepo : PatientRepository
-    + authenticate(username, password) : Patient
+    + validateLogin(patient : Patient) : boolean
     + register(patient : Patient) : void
+  }
+
+  class DoctorService {
+    - doctorRepo : DoctorRepository
+    + findAllDoctors() : List<Doctor>
+    + findBySpecialty(specialty : String) : List<Doctor>
+    + saveDoctor(doctor : Doctor) : Doctor
   }
 
   class InjuryService {
@@ -138,20 +158,32 @@ package "com.injuryassist.service" {
     + getByAppointmentId(id : Long) : Report
   }
 
-  ' ← the only fix: ReportService wired to AppointmentService
+  class TreatmentService {
+    - treatmentRepo : TreatmentRepository
+    + getTreatment(injuryName : String) : Treatment
+  }
+
   AppointmentService --> ReportService : triggers after booking
 }
 
 ' ─────────────────────────────────────────
 ' CONTROLLER LAYER
 ' ─────────────────────────────────────────
-package "com.injuryassist.controller" {
+package "dev.mr3.sb.controller" {
 
   class AuthController {
     - authService : AuthService
-    + login()  : String
-    + signup() : String
-    + logout() : String
+    + loginPage()  : String
+    + login()      : String
+    + signup()     : String
+    + logout()     : String
+  }
+
+  class DoctorController {
+    - doctorService : DoctorService
+    + listDoctors()   : String
+    + getDoctor()     : String
+    + createDoctor()  : String
   }
 
   class InjuryController {
@@ -166,7 +198,6 @@ package "com.injuryassist.controller" {
     + book()             : String
   }
 
-  ' ← the only fix: one new controller so report-view has an owner
   class ReportController {
     - reportService : ReportService
     + viewReport(appointmentId : Long) : String
@@ -174,31 +205,49 @@ package "com.injuryassist.controller" {
 }
 
 ' ─────────────────────────────────────────
+' CONFIGURATION LAYER
+' ─────────────────────────────────────────
+package "dev.mr3.sb.config" {
+  class SecurityConfig {
+    + filterChain() : SecurityFilterChain
+  }
+  class CustomUserDetailsService {
+    + loadUserByUsername() : UserDetails
+  }
+  class DataInitializer {
+    + run() : void
+  }
+}
+
+' ─────────────────────────────────────────
 ' UI TEMPLATES
 ' ─────────────────────────────────────────
 package "templates" {
-  class "login.html"        as T1 <<Boundary>>
-  class "signup.html"       as T2 <<Boundary>>
-  class "injury-form.html"  as T3 <<Boundary>>
-  class "result.html"       as T4 <<Boundary>>
-  class "slots.html"        as T5 <<Boundary>>
-  class "report-view.html"  as T6 <<Boundary>>
+  class "Login.html"          as T1 <<Boundary>>
+  class "SignUp.html"         as T2 <<Boundary>>
+  class "SelectInjury.html"   as T3 <<Boundary>>
+  class "Dashboard.html"      as T4 <<Boundary>>
+  class "Appointment.html"    as T5 <<Boundary>>
+  class "Reports.html"        as T6 <<Boundary>>
+  class "doctor-list.html"    as T7 <<Boundary>>
 }
 
 ' ─────────────────────────────────────────
 ' WIRING — UI to Controllers
 ' ─────────────────────────────────────────
-T1 ..> AuthController        : POST /auth/login
-T2 ..> AuthController        : POST /auth/signup
-T3 ..> InjuryController      : POST /injury/submit
-T4 ..> AppointmentController : POST /appointment/book
-T5 ..> AppointmentController : GET  /appointment/slots
-T6 ..> ReportController      : GET  /report/view
+T1 ..> AuthController        : POST /login
+T2 ..> AuthController        : POST /signup
+T3 ..> InjuryController      : POST /injury
+T4 ..> AppointmentController : GET /dashboard
+T5 ..> AppointmentController : POST /appointment
+T6 ..> ReportController      : GET /reports
+T7 ..> DoctorController      : GET /doctors
 
 ' ─────────────────────────────────────────
 ' WIRING — Controllers to Services
 ' ─────────────────────────────────────────
 AuthController        --> AuthService
+DoctorController      --> DoctorService
 InjuryController      --> InjuryService
 AppointmentController --> AppointmentService
 ReportController      --> ReportService
@@ -207,18 +256,21 @@ ReportController      --> ReportService
 ' WIRING — Services to Repositories
 ' ─────────────────────────────────────────
 AuthService        --> PatientRepository
+DoctorService      --> DoctorRepository
 InjuryService      --> InjuryRepository
 AppointmentService --> AppointmentRepository
 AppointmentService --> DoctorRepository
 ReportService      --> ReportRepository
+TreatmentService   --> TreatmentRepository
 
 ' ─────────────────────────────────────────
 ' WIRING — Repositories to Entities
 ' ─────────────────────────────────────────
 PatientRepository     ..> Patient
-InjuryRepository      ..> Injury
 DoctorRepository      ..> Doctor
+InjuryRepository      ..> Injury
 AppointmentRepository ..> Appointment
 ReportRepository      ..> Report
+TreatmentRepository   ..> Treatment
 
 @enduml

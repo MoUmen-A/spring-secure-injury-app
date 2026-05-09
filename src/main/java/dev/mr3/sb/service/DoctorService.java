@@ -39,6 +39,7 @@ public class DoctorService {
         if (doctor == null) {
             throw new IllegalArgumentException("Doctor cannot be null");
         }
+        PersonValidation.validateAndNormalize(doctor);
         return doctorRepository.save(doctor);
     }
 

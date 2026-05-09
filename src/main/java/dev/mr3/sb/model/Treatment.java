@@ -42,18 +42,4 @@ public class Treatment {
     public void setTreatmentSuggestion(String treatmentSuggestion) {
         this.treatmentSuggestion = treatmentSuggestion;
     }
-    // Keep static method (not persisted)
-    public static Treatment getTreatment(String injuryName) {
-        String treatmentSuggestion = "";
-        switch (injuryName) {
-            case "Quadriceps Contusion":
-                treatmentSuggestion = "Rest from impact activities, apply ice for 15–20 minutes every 2–3 hours, gently stretch as tolerated, and avoid massaging deep bruises early on.";
-                break;
-            // ... rest of cases
-            default:
-                treatmentSuggestion = "No specific treatment found. Consult a healthcare provider for proper care.";
-                break;
-        }
-        return new Treatment(injuryName, treatmentSuggestion);
-    }
 }

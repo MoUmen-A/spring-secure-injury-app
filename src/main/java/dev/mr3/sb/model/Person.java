@@ -32,11 +32,11 @@ public abstract class Person {
     public Person() {
     }
     public Person(String name, int age, boolean gender, String contact_no, String address) {
-        setName(name);
-        setAge(age);
-        setGender(gender);
-        setContact_no(contact_no);
-        setAddress(address);
+        this.name = name;
+        this.age = age;
+        this.gender = gender;
+        this.contact_no = contact_no;
+        this.address = address;
     }
 
     public Long getId() {
@@ -59,24 +59,18 @@ public abstract class Person {
     }
 
     public void setName(String name) {
-        this.name = name == null ? "" : name.trim();
+        this.name = name;
     }
     public void setAge(int age) {
-        if (age < 0) {
-            throw new IllegalArgumentException("Age cannot be negative");
-        }
         this.age = age;
     }
     public void setGender(boolean gender) {
         this.gender = gender;
     }
     public void setContact_no(String contact_no) {
-        if (contact_no == null) {
-            throw new IllegalArgumentException("Contact number cannot be null");
-        }
         this.contact_no = contact_no;
     }
     public void setAddress(String address) {
-        this.address = (address == null) ? "" : address.trim();
+        this.address = address;
     }
 }
