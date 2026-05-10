@@ -1,43 +1,36 @@
 package dev.mr3.sb.service;
-
+ 
 import dev.mr3.sb.model.Person;
-
+ 
 /**
  * Centralized validation and normalization for person fields.
+ * Simplicity is a must.
  */
 public final class PersonValidation {
+ 
     private PersonValidation() {
     }
-
+ 
     public static void validateAndNormalize(Person person) {
         if (person == null) {
             throw new IllegalArgumentException("Person cannot be null");
         }
-        person.setName(normalizeName(person.getName()));
+        person.setName(normalize(person.getName()));
+        person.setEmail(normalize(person.getEmail()).toLowerCase());
         person.setAge(validateAge(person.getAge()));
-        person.setContact_no(validateContactNo(person.getContact_no()));
-        person.setAddress(normalizeAddress(person.getAddress()));
+        person.setContact_no(normalize(person.getContact_no()).replaceAll(" ", ""));
+        person.setAddress(normalize(person.getAddress()));
     }
-
-    private static String normalizeName(String name) {
-        return name == null ? "" : name.trim();
+ 
+    private static String normalize(String s) {
+        if (s == null) return "";
+        return s.trim().replaceAll("\\s+", " ");
     }
-
+ 
     private static int validateAge(int age) {
-        if (age < 0) {
-            throw new IllegalArgumentException("Age cannot be negative");
+        if (age < 0 || age > 90) {
+            throw new IllegalArgumentException("Age must be between 0 and 90");
         }
         return age;
-    }
-
-    private static String validateContactNo(String contactNo) {
-        if (contactNo == null) {
-            throw new IllegalArgumentException("Contact number cannot be null");
-        }
-        return contactNo;
-    }
-
-    private static String normalizeAddress(String address) {
-        return address == null ? "" : address.trim();
     }
 }

@@ -1,45 +1,64 @@
 package dev.mr3.sb.service;
 
 import dev.mr3.sb.model.Patient;
+import dev.mr3.sb.repository.PatientRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 /**
- * Validates login input fields before authentication.
- * Keywords: service, login, validation
+ * Handles authentication and registration logic.
  */
 public class AuthService {
-    public boolean validateLogin(Patient patient) {
-        System.out.println("Patient object: " + patient);
-        if (patient == null) {
-            System.out.println("Patient is null");
-            return false;
+
+    @Autowired
+    private PatientRepository patientRepo;
+
+    // Descriptive results for registration
+    public enum RegistrationResult {
+        SUCCESS,
+        EMAIL_TAKEN,
+        DATABASE_ERROR
+    }
+
+    /**
+     * Verifies credentials by Email.
+     */
+    public Patient validateLogin(Patient patient) {
+        if (patient == null || patient.getEmail() == null || patient.getPassword() == null) {
+            return null;
+        }
+ 
+        Patient dbPatient = patientRepo.findByEmail(patient.getEmail().toLowerCase().trim());
+        if (dbPatient != null && dbPatient.getPassword().equals(patient.getPassword())) {
+            return dbPatient;
+        }
+        return null;
+    }
+
+    /**
+     * Validates and persists a new patient.
+     */
+    public RegistrationResult register(Patient patient) {
+        if (patient == null || patient.getEmail() == null) {
+            return RegistrationResult.DATABASE_ERROR;
         }
 
-        System.out.println("Username: '" + patient.getUsername() + "'");
-        System.out.println("Password: '" + patient.getPassword() + "'");
+        // Normalize everything (Name, Age, Email, etc.)
+        PersonValidation.validateAndNormalize(patient);
 
-        if (patient.getUsername() == null || patient.getPassword() == null) {
-            System.out.println("Username or password is null");
-            return false;
+        // 1. Check if Email is taken
+        if (patientRepo.findByEmail(patient.getEmail()) != null) {
+            return RegistrationResult.EMAIL_TAKEN;
         }
 
-        if (patient.getUsername().isEmpty() || patient.getPassword().isEmpty()) {
-            System.out.println("Username or password is empty");
-            return false;
+        // 2. Try to save
+        try {
+            patientRepo.save(patient);
+            return RegistrationResult.SUCCESS;
+        } catch (Exception e) {
+            System.err.println("Registration failed: " + e.getMessage());
+            return RegistrationResult.DATABASE_ERROR;
         }
-
-        if (patient.getUsername().length() < 3 || patient.getPassword().length() < 6) {
-            System.out.println("Length too short. Username length: " + patient.getUsername().length() + ", Password length: " + patient.getPassword().length());
-            return false;
-        }
-
-        if (patient.getUsername().contains(" ") || patient.getPassword().contains(" ")) {
-            System.out.println("Contains spaces");
-            return false;
-        }
-
-        System.out.println("Validation passed!");
-        return true;
     }
 }

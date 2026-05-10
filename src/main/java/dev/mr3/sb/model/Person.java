@@ -11,7 +11,7 @@ import jakarta.persistence.*;
 public abstract class Person {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column
@@ -23,37 +23,48 @@ public abstract class Person {
     @Column
     private boolean gender;
 
-    @Column
+    @Column(unique = true, nullable = false)
+    private String email;
+
+    @Column(unique = true, nullable = false)
     private String contact_no;
 
     @Column
     private String address;
 
+    // default constructor is only used by the jpa
     public Person() {
     }
-    public Person(String name, int age, boolean gender, String contact_no, String address) {
-        this.name = name;
-        this.age = age;
-        this.gender = gender;
-        this.contact_no = contact_no;
-        this.address = address;
+
+    public Person(String name, int age, boolean gender, String contact_no, String email, String address) {
+        setName(name);
+        setAge(age);
+        setGender(gender);
+        setContact_no(contact_no);
+        setEmail(email);
+        setAddress(address);
     }
 
     public Long getId() {
         return id;
     }
+
     public String getName() {
         return name;
     }
+
     public int getAge() {
         return age;
     }
+
     public boolean isGender() {
         return gender;
     }
+
     public String getContact_no() {
         return contact_no;
     }
+
     public String getAddress() {
         return address;
     }
@@ -61,16 +72,28 @@ public abstract class Person {
     public void setName(String name) {
         this.name = name;
     }
+
     public void setAge(int age) {
         this.age = age;
     }
+
     public void setGender(boolean gender) {
         this.gender = gender;
     }
+
     public void setContact_no(String contact_no) {
         this.contact_no = contact_no;
     }
+
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

@@ -100,9 +100,6 @@ package "dev.mr3.sb.model" {
   Patient      "1" *-- "0..*" Injury      : injuries
   Patient      "1" *-- "0..*" Appointment : reservations
   Appointment  "0..*" --> "1" Doctor      : assigned to
-  Report       "1" --> "1" Patient        : patient
-  Report       "1" --> "1" Injury         : injury
-  Report       "1" --> "1" Treatment      : treatment
   Report       "1" --> "1" Appointment    : appointment
   Injury       --> BodyPart               : bodyPart
   Appointment  --> AppointmentStatus      : status
