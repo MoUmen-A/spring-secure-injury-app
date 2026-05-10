@@ -1,49 +1,64 @@
 package dev.mr3.sb.service;
- 
+
 import dev.mr3.sb.model.Patient;
 import dev.mr3.sb.repository.PatientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
- 
+
 @Service
 /**
  * Handles authentication and registration logic.
  */
 public class AuthService {
- 
+
     @Autowired
     private PatientRepository patientRepo;
- 
+
+    // Descriptive results for registration
+    public enum RegistrationResult {
+        SUCCESS,
+        EMAIL_TAKEN,
+        DATABASE_ERROR
+    }
+
     /**
      * Verifies credentials by Email.
      */
-    public boolean validateLogin(Patient patient) {
+    public Patient validateLogin(Patient patient) {
         if (patient == null || patient.getEmail() == null || patient.getPassword() == null) {
-            return false;
+            return null;
         }
  
-        // Log in using Email as the unique key
         Patient dbPatient = patientRepo.findByEmail(patient.getEmail().toLowerCase().trim());
-        return dbPatient != null && dbPatient.getPassword().equals(patient.getPassword());
-    }
- 
-    /**
-     * Validates and persists a new patient. Ensures Email is unique.
-     */
-    public void register(Patient patient) {
-        if (patient == null || patient.getEmail() == null) {
-            return;
+        if (dbPatient != null && dbPatient.getPassword().equals(patient.getPassword())) {
+            return dbPatient;
         }
- 
+        return null;
+    }
+
+    /**
+     * Validates and persists a new patient.
+     */
+    public RegistrationResult register(Patient patient) {
+        if (patient == null || patient.getEmail() == null) {
+            return RegistrationResult.DATABASE_ERROR;
+        }
+
         // Normalize everything (Name, Age, Email, etc.)
         PersonValidation.validateAndNormalize(patient);
- 
-        // Ensure Email is unique before saving
-        if (patientRepo.findByEmail(patient.getEmail()) == null) {
+
+        // 1. Check if Email is taken
+        if (patientRepo.findByEmail(patient.getEmail()) != null) {
+            return RegistrationResult.EMAIL_TAKEN;
+        }
+
+        // 2. Try to save
+        try {
             patientRepo.save(patient);
-            System.out.println("Patient registered with unique email: " + patient.getEmail());
-        } else {
-            System.out.println("Registration failed: Email already exists.");
+            return RegistrationResult.SUCCESS;
+        } catch (Exception e) {
+            System.err.println("Registration failed: " + e.getMessage());
+            return RegistrationResult.DATABASE_ERROR;
         }
     }
 }
