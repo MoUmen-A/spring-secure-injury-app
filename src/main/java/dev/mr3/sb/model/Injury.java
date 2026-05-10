@@ -3,6 +3,7 @@ package dev.mr3.sb.model;
 import jakarta.persistence.*;
 
 @Entity
+@Table (name = "injury")
 /**
  * Injury entity describing type, body part, and patient notes.
  * Keywords: entity, injury, assessment
