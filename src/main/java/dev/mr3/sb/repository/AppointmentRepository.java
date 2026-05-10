@@ -1,8 +1,13 @@
 package dev.mr3.sb.repository;
 
+import dev.mr3.sb.model.Appointment;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
 /**
- * Data access placeholder for appointment entities.
- * Keywords: repository, appointment, persistence
+ * JPA repository for Appointment entities.
  */
-public class AppointmentRepository {
+@Repository
+public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
+
 }
