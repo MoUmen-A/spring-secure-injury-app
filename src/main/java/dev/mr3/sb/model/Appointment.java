@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 
 @Entity
+@Table(name = "appointments")
 /**
  * Appointment slot entity with day/time scheduling details.
  * Keywords: entity, appointment, scheduling
