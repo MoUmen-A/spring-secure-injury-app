@@ -1,45 +1,49 @@
 package dev.mr3.sb.service;
-
+ 
 import dev.mr3.sb.model.Patient;
+import dev.mr3.sb.repository.PatientRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+ 
 @Service
 /**
- * Validates login input fields before authentication.
- * Keywords: service, login, validation
+ * Handles authentication and registration logic.
  */
 public class AuthService {
+ 
+    @Autowired
+    private PatientRepository patientRepo;
+ 
+    /**
+     * Verifies credentials by Email.
+     */
     public boolean validateLogin(Patient patient) {
-        System.out.println("Patient object: " + patient);
-        if (patient == null) {
-            System.out.println("Patient is null");
+        if (patient == null || patient.getEmail() == null || patient.getPassword() == null) {
             return false;
         }
-
-        System.out.println("Username: '" + patient.getUsername() + "'");
-        System.out.println("Password: '" + patient.getPassword() + "'");
-
-        if (patient.getUsername() == null || patient.getPassword() == null) {
-            System.out.println("Username or password is null");
-            return false;
+ 
+        // Log in using Email as the unique key
+        Patient dbPatient = patientRepo.findByEmail(patient.getEmail().toLowerCase().trim());
+        return dbPatient != null && dbPatient.getPassword().equals(patient.getPassword());
+    }
+ 
+    /**
+     * Validates and persists a new patient. Ensures Email is unique.
+     */
+    public void register(Patient patient) {
+        if (patient == null || patient.getEmail() == null) {
+            return;
         }
-
-        if (patient.getUsername().isEmpty() || patient.getPassword().isEmpty()) {
-            System.out.println("Username or password is empty");
-            return false;
+ 
+        // Normalize everything (Name, Age, Email, etc.)
+        PersonValidation.validateAndNormalize(patient);
+ 
+        // Ensure Email is unique before saving
+        if (patientRepo.findByEmail(patient.getEmail()) == null) {
+            patientRepo.save(patient);
+            System.out.println("Patient registered with unique email: " + patient.getEmail());
+        } else {
+            System.out.println("Registration failed: Email already exists.");
         }
-
-        if (patient.getUsername().length() < 3 || patient.getPassword().length() < 6) {
-            System.out.println("Length too short. Username length: " + patient.getUsername().length() + ", Password length: " + patient.getPassword().length());
-            return false;
-        }
-
-        if (patient.getUsername().contains(" ") || patient.getPassword().contains(" ")) {
-            System.out.println("Contains spaces");
-            return false;
-        }
-
-        System.out.println("Validation passed!");
-        return true;
     }
 }

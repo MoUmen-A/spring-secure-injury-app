@@ -15,20 +15,32 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class AuthController {
     private final AuthService authService;
 
+    // constructor ,DI
     AuthController(AuthService authService){
         this.authService = authService;
     }
+
     @GetMapping("/login")
-    public String loginPage() {
+    public String viewLoginPage() {
         return "Login";
     }
 
-@PostMapping("/login")
+    @PostMapping("/login")
     public String login(Patient patient) {
-    if (!authService.validateLogin(patient)) {
+        if (!authService.validateLogin(patient)) {
+            return "Login";
+        }
+        return "Dashboard";
+    }
+
+    @GetMapping("/signup")
+    public String viewSignupPage() {
+        return "Signup";
+    }
+
+    @PostMapping("/signup")
+    public String signup(Patient patient) {
+        authService.register(patient);
         return "Login";
     }
-    return "Dashboard";
-}
-
 }

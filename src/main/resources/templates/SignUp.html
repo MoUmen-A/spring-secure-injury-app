@@ -11,9 +11,16 @@
     <h1>Sign Up</h1>
     <form action="/signup" method="post">
         <label for="username">Username:</label>
-        <input type="text" minlength="5" id="username" name="username" required><br><br>
+        <input type="text" minlength="3" id="username" name="username" maxlength="15" required><br><br>
+
         <label for="password">Password:</label>
-        <input type="password" minlength="6" id="password" name="password" required><br><br>
+        <input type="password" minlength="6" id="password" name="password" maxlength="15" required><br><br>
+
+        <label for="email">Email:</label>
+        <input type="email" minlength="6" id="email" name="email" maxlength="30" required><br><br>
+        OR
+        <a href = "/login">Login</a>
+        <p style ="color : red" th:if ="${error}"></p>
         <button class="btn" type="submit">Sign Up</button>
     </form>
     </div>
