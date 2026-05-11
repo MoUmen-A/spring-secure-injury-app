@@ -1,9 +1,8 @@
 package dev.mr3.sb.controller;
 
-import dev.mr3.sb.model.Appointment;
-import dev.mr3.sb.model.Weekday;
-import dev.mr3.sb.service.AppointmentService;
-import dev.mr3.sb.service.DoctorService;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,8 +11,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
+import dev.mr3.sb.model.Appointment;
+import dev.mr3.sb.model.Patient;
+import dev.mr3.sb.model.Weekday;
+import dev.mr3.sb.service.AppointmentService;
+import dev.mr3.sb.service.DoctorService;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/appointments")
@@ -45,16 +48,22 @@ public class AppointmentController {
 	public String createAppointment(@RequestParam("doctorId") Long doctorId,
 									@RequestParam("date") String date,
 									@RequestParam("time") String time,
-									RedirectAttributes redirectAttributes) {
+									RedirectAttributes redirectAttributes,
+									HttpSession session) {
 		// convert date string to weekday enum
 		Weekday weekday = WeekdayMapper.fromDateString(date);
 		Appointment appointment = new Appointment();
 		appointment.setWeekday(weekday);
 		appointment.setTime(time);
 
-		appointmentService.saveAppointment(appointment);
+		Patient patient = (Patient) session.getAttribute("user");
+		String email = patient != null ? patient.getEmail() : null;
+		boolean emailSent = appointmentService.saveAppointmentAndNotify(appointment, email);
 
 		redirectAttributes.addFlashAttribute("message", "Appointment booked successfully");
+		if (emailSent) {
+			redirectAttributes.addFlashAttribute("emailNotice", "Appointment email sent. Please check your inbox.");
+		}
 		redirectAttributes.addFlashAttribute("selectedDoctorId", doctorId);
 		return "redirect:/dashboard";
 	}

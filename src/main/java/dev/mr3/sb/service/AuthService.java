@@ -1,9 +1,10 @@
 package dev.mr3.sb.service;
 
-import dev.mr3.sb.model.Patient;
-import dev.mr3.sb.repository.PatientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import dev.mr3.sb.model.Patient;
+import dev.mr3.sb.repository.PatientRepository;
 
 @Service
 /**
@@ -14,9 +15,13 @@ public class AuthService {
     @Autowired
     private PatientRepository patientRepo;
 
+    @Autowired
+    private EmailService emailService;
+
     // Descriptive results for registration
     public enum RegistrationResult {
-        SUCCESS,
+        SUCCESS_EMAIL_SENT,
+        SUCCESS_EMAIL_FAILED,
         EMAIL_TAKEN,
         DATABASE_ERROR
     }
@@ -55,7 +60,11 @@ public class AuthService {
         // 2. Try to save
         try {
             patientRepo.save(patient);
-            return RegistrationResult.SUCCESS;
+            boolean emailSent = emailService.sendWelcomeEmail(patient.getEmail());
+            if (!emailSent) {
+                System.err.println("Welcome email failed: unable to send.");
+            }
+            return emailSent ? RegistrationResult.SUCCESS_EMAIL_SENT : RegistrationResult.SUCCESS_EMAIL_FAILED;
         } catch (Exception e) {
             System.err.println("Registration failed: " + e.getMessage());
             return RegistrationResult.DATABASE_ERROR;

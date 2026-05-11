@@ -1,14 +1,15 @@
 package dev.mr3.sb.controller;
  
-import dev.mr3.sb.model.Patient;
-import dev.mr3.sb.service.AuthService;
-import dev.mr3.sb.service.AuthService.RegistrationResult;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import dev.mr3.sb.model.Patient;
+import dev.mr3.sb.service.AuthService;
+import dev.mr3.sb.service.AuthService.RegistrationResult;
+import jakarta.servlet.http.HttpSession;
  
 @Controller
 /**
@@ -59,8 +60,13 @@ public class AuthController {
     public String signup(Patient patient, RedirectAttributes redirectAttributes, Model model, HttpSession session) {
         RegistrationResult result = authService.register(patient);
  
-        if (result == RegistrationResult.SUCCESS) {
+        if (result == RegistrationResult.SUCCESS_EMAIL_SENT) {
             // Save to session so they are logged in immediately after signup
+            session.setAttribute("user", patient);
+            redirectAttributes.addFlashAttribute("success", "Registration successful!");
+            redirectAttributes.addFlashAttribute("emailNotice", "Welcome email sent. Please check your inbox.");
+            return "redirect:/dashboard";
+        } else if (result == RegistrationResult.SUCCESS_EMAIL_FAILED) {
             session.setAttribute("user", patient);
             redirectAttributes.addFlashAttribute("success", "Registration successful!");
             return "redirect:/dashboard";

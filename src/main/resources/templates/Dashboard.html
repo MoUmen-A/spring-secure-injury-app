@@ -1,155 +1,169 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Dashboard</title>
     <link rel="stylesheet" href="/style.css">
 </head>
+
 <body class="page">
-<header class="topbar">
-    <div class="brand">
-        <span class="brand-mark">IA</span>
-        <span class="brand-name">InjuryAssist</span>
-    </div>
-    <nav class="nav-actions">
-        <a class="nav-link" th:href="@{/dashboard}">Dashboard</a>
-        <div class="user-pill">
-            <span class="user-pill-label" th:text="${patient != null ? (#strings.isEmpty(patient.name) ? patient.username : patient.name) : 'Patient'}">Patient</span>
+    <header class="topbar">
+        <div class="brand">
+            <span class="brand-mark">IA</span>
+            <span class="brand-name">InjuryAssist</span>
         </div>
-        <a class="btn btn-blue" th:href="@{/logout}">Logout</a>
-    </nav>
-</header>
-
-<main class="container">
-    <div class="alert" th:if="${message}" th:text="${message}">Appointment booked successfully.</div>
-
-    <section class="hero">
-        <div>
-            <p class="eyebrow">Welcome back</p>
-            <h1 th:text="${patient != null ? (#strings.isEmpty(patient.name) ? patient.username : patient.name) : 'Patient'}">Patient</h1>
-            <p class="subtitle">Here is your latest overview and next steps for injury care.</p>
-            <div class="hero-actions">
-                <a class="btn btn-blue" th:href="@{/injury}">Start injury check</a>
-                <a class="btn btn-outline" th:href="@{/appointments}">Book appointment</a>
+        <nav class="nav-actions">
+            <a class="nav-link" th:href="@{/dashboard}">Dashboard</a>
+            <div class="user-pill">
+                <span class="user-pill-label"
+                    th:text="${patient != null ? (#strings.isEmpty(patient.name) ? patient.username : patient.name) : 'Patient'}">Patient</span>
             </div>
-        </div>
-        <div class="hero-card">
-            <h3>Your summary</h3>
-            <p class="muted">Stay on track with fast actions and recent updates.</p>
-            <div class="mini-stats">
-                <div>
-                    <span class="mini-label">Injuries</span>
-                    <span class="mini-value" th:text="${patient != null && patient.injuries != null ? patient.injuries.size() : 0}">0</span>
-                </div>
-                <div>
-                    <span class="mini-label">Appointments</span>
-                    <span class="mini-value" th:text="${patient != null && patient.reservations != null ? patient.reservations.size() : 0}">0</span>
-                </div>
-                <div>
-                    <span class="mini-label">Reports</span>
-                    <span class="mini-value" th:text="${patient != null && patient.reports != null ? patient.reports.size() : 0}">0</span>
+            <a class="btn btn-blue" th:href="@{/logout}">Logout</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <div class="alert" th:if="${success}" th:text="${success}">Registration successful.</div>
+        <div class="alert" th:if="${message}" th:text="${message}">Appointment booked successfully.</div>
+        <div class="alert" th:if="${emailNotice}" th:text="${emailNotice}">Please check your email.</div>
+
+        <section class="hero">
+            <div>
+                <p class="eyebrow">Welcome back</p>
+                <h1
+                    th:text="${patient != null ? (#strings.isEmpty(patient.name) ? patient.username : patient.name) : 'Patient'}">
+                    Patient</h1>
+                <p class="subtitle">Here is your latest overview and next steps for injury care.</p>
+                <div class="hero-actions">
+                    <a class="btn btn-blue" th:href="@{/injury}">Start injury check</a>
+                    <a class="btn btn-outline" th:href="@{/appointments}">Book appointment</a>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <section class="stats">
-        <div class="stat-card">
-            <p class="stat-label">My injuries</p>
-            <p class="stat-value" th:text="${patient != null && patient.injuries != null ? patient.injuries.size() : 0}">0</p>
-            <p class="stat-meta">Track symptoms and follow recovery guidance.</p>
-        </div>
-        <div class="stat-card">
-            <p class="stat-label">Appointments</p>
-            <p class="stat-value" th:text="${patient != null && patient.reservations != null ? patient.reservations.size() : 0}">0</p>
-            <p class="stat-meta">Upcoming visits and consultations.</p>
-        </div>
-        <div class="stat-card">
-            <p class="stat-label">Reports</p>
-            <p class="stat-value" th:text="${patient != null && patient.reports != null ? patient.reports.size() : 0}">0</p>
-            <p class="stat-meta">Medical notes and recovery reports.</p>
-        </div>
-    </section>
-
-    <section class="grid">
-        <div class="card">
-            <div class="card-head">
-                <h2>Recent injuries</h2>
-                <a class="btn btn-outline" th:href="@{/injury}">New injury</a>
-            </div>
-            <ul class="list" th:if="${patient != null && !#lists.isEmpty(patient.injuries)}">
-                <li class="list-item" th:each="injury : ${patient.injuries}">
+            <div class="hero-card">
+                <h3>Your summary</h3>
+                <p class="muted">Stay on track with fast actions and recent updates.</p>
+                <div class="mini-stats">
                     <div>
-                        <p class="list-title" th:text="${injury.type}">Injury type</p>
-                        <p class="list-sub" th:text="${injury.bodyPart}">Body part</p>
+                        <span class="mini-label">Injuries</span>
+                        <span class="mini-value"
+                            th:text="${patient != null && patient.injuries != null ? patient.injuries.size() : 0}">0</span>
                     </div>
-                    <span class="tag" th:text="${injury.movable ? 'Movable' : 'Limited'}">Movable</span>
-                </li>
-            </ul>
-            <div class="empty" th:if="${patient == null || #lists.isEmpty(patient.injuries)}">
-                No injuries logged yet. Start an injury check to get guidance.
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-head">
-                <h2>Upcoming appointments</h2>
-                <a class="btn btn-outline" th:href="@{/appointments}">Book appointment</a>
-            </div>
-            <ul class="list" th:if="${patient != null && !#lists.isEmpty(patient.reservations)}">
-                <li class="list-item" th:each="appointment : ${patient.reservations}">
                     <div>
-                        <p class="list-title" th:text="${appointment.weekday}">Weekday</p>
-                        <p class="list-sub" th:text="${appointment.time}">Time</p>
+                        <span class="mini-label">Appointments</span>
+                        <span class="mini-value"
+                            th:text="${patient != null && patient.reservations != null ? patient.reservations.size() : 0}">0</span>
                     </div>
-                    <span class="tag">Scheduled</span>
-                </li>
-            </ul>
-            <div class="empty" th:if="${patient == null || #lists.isEmpty(patient.reservations)}">
-                No appointments yet. Book a visit to get a professional assessment.
-            </div>
-        </div>
-    </section>
-
-    <section class="grid">
-        <div class="card">
-            <div class="card-head">
-                <h2>Reports</h2>
-                <a class="btn btn-outline" th:href="@{/reports}">View all</a>
-            </div>
-            <ul class="list" th:if="${patient != null && !#lists.isEmpty(patient.reports)}">
-                <li class="list-item" th:each="report : ${patient.reports}">
                     <div>
-                        <p class="list-title" th:text="${report}">Report summary</p>
-                        <p class="list-sub">Tap to review details</p>
+                        <span class="mini-label">Reports</span>
+                        <span class="mini-value"
+                            th:text="${patient != null && patient.reports != null ? patient.reports.size() : 0}">0</span>
                     </div>
-                    <span class="tag">Ready</span>
-                </li>
-            </ul>
-            <div class="empty" th:if="${patient == null || #lists.isEmpty(patient.reports)}">
-                Reports will appear after completing an injury assessment or appointment.
+                </div>
             </div>
-        </div>
+        </section>
 
-        <div class="card guidance">
-            <h2>Recommended next steps</h2>
-            <ol class="steps">
-                <li>Log injury symptoms and body part.</li>
-                <li>Book an appointment with a doctor.</li>
-                <li>Review reports and follow treatment guidance.</li>
-            </ol>
-            <div class="guidance-actions">
-                <a class="btn btn-blue" th:href="@{/injury}">Start injury check</a>
-                <a class="btn btn-outline" th:href="@{/reports}">Open reports</a>
+        <section class="stats">
+            <div class="stat-card">
+                <p class="stat-label">My injuries</p>
+                <p class="stat-value"
+                    th:text="${patient != null && patient.injuries != null ? patient.injuries.size() : 0}">0</p>
+                <p class="stat-meta">Track symptoms and follow recovery guidance.</p>
             </div>
-            <p class="muted">Need help? Keep your contact details up to date for faster support.</p>
-        </div>
-    </section>
-</main>
+            <div class="stat-card">
+                <p class="stat-label">Appointments</p>
+                <p class="stat-value"
+                    th:text="${patient != null && patient.reservations != null ? patient.reservations.size() : 0}">0</p>
+                <p class="stat-meta">Upcoming visits and consultations.</p>
+            </div>
+            <div class="stat-card">
+                <p class="stat-label">Reports</p>
+                <p class="stat-value"
+                    th:text="${patient != null && patient.reports != null ? patient.reports.size() : 0}">0</p>
+                <p class="stat-meta">Medical notes and recovery reports.</p>
+            </div>
+        </section>
 
-<footer class="footer">
-    <p>InjuryAssist dashboard keeps your recovery organized and accessible.</p>
-</footer>
+        <section class="grid">
+            <div class="card">
+                <div class="card-head">
+                    <h2>Recent injuries</h2>
+                    <a class="btn btn-outline" th:href="@{/injury}">New injury</a>
+                </div>
+                <ul class="list" th:if="${patient != null && !#lists.isEmpty(patient.injuries)}">
+                    <li class="list-item" th:each="injury : ${patient.injuries}">
+                        <div>
+                            <p class="list-title" th:text="${injury.type}">Injury type</p>
+                            <p class="list-sub" th:text="${injury.bodyPart}">Body part</p>
+                        </div>
+                        <span class="tag" th:text="${injury.movable ? 'Movable' : 'Limited'}">Movable</span>
+                    </li>
+                </ul>
+                <div class="empty" th:if="${patient == null || #lists.isEmpty(patient.injuries)}">
+                    No injuries logged yet. Start an injury check to get guidance.
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-head">
+                    <h2>Upcoming appointments</h2>
+                    <a class="btn btn-outline" th:href="@{/appointments}">Book appointment</a>
+                </div>
+                <ul class="list" th:if="${patient != null && !#lists.isEmpty(patient.reservations)}">
+                    <li class="list-item" th:each="appointment : ${patient.reservations}">
+                        <div>
+                            <p class="list-title" th:text="${appointment.weekday}">Weekday</p>
+                            <p class="list-sub" th:text="${appointment.time}">Time</p>
+                        </div>
+                        <span class="tag">Scheduled</span>
+                    </li>
+                </ul>
+                <div class="empty" th:if="${patient == null || #lists.isEmpty(patient.reservations)}">
+                    No appointments yet. Book a visit to get a professional assessment.
+                </div>
+            </div>
+        </section>
+
+        <section class="grid">
+            <div class="card">
+                <div class="card-head">
+                    <h2>Reports</h2>
+                    <a class="btn btn-outline" th:href="@{/reports}">View all</a>
+                </div>
+                <ul class="list" th:if="${patient != null && !#lists.isEmpty(patient.reports)}">
+                    <li class="list-item" th:each="report : ${patient.reports}">
+                        <div>
+                            <p class="list-title" th:text="${report}">Report summary</p>
+                            <p class="list-sub">Tap to review details</p>
+                        </div>
+                        <span class="tag">Ready</span>
+                    </li>
+                </ul>
+                <div class="empty" th:if="${patient == null || #lists.isEmpty(patient.reports)}">
+                    Reports will appear after completing an injury assessment or appointment.
+                </div>
+            </div>
+
+            <div class="card guidance">
+                <h2>Recommended next steps</h2>
+                <ol class="steps">
+                    <li>Log injury symptoms and body part.</li>
+                    <li>Book an appointment with a doctor.</li>
+                    <li>Review reports and follow treatment guidance.</li>
+                </ol>
+                <div class="guidance-actions">
+                    <a class="btn btn-blue" th:href="@{/injury}">Start injury check</a>
+                    <a class="btn btn-outline" th:href="@{/reports}">Open reports</a>
+                </div>
+                <p class="muted">Need help? Keep your contact details up to date for faster support.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>InjuryAssist dashboard keeps your recovery organized and accessible.</p>
+    </footer>
 </body>
+
 </html>
