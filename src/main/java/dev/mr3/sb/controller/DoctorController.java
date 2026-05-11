@@ -1,7 +1,9 @@
 package dev.mr3.sb.controller;
 
 import dev.mr3.sb.model.Doctor;
+import dev.mr3.sb.model.Patient;
 import dev.mr3.sb.service.DoctorService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +31,37 @@ public class DoctorController {
         var doctors = doctorService.findBySpecialty(specialty);
         model.addAttribute("doctors", doctors);
         return "doctor-list";
+    }
+
+    @GetMapping("/recommended")
+    public String recommendedDoctors(HttpSession session, Model model) {
+        Patient user = (Patient) session.getAttribute("user");
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        Boolean critical = (Boolean) session.getAttribute("pendingInjuryCritical");
+        String bodyPart = (String) session.getAttribute("pendingInjuryBodyPart");
+        if (critical == null || bodyPart == null) {
+            return "redirect:/injury/select";
+        }
+
+        var doctors = doctorService.findRecommendedDoctors(critical, bodyPart);
+        model.addAttribute("doctors", doctors);
+        model.addAttribute("critical", critical);
+        model.addAttribute("bodyPart", bodyPart);
+        model.addAttribute("specialtyLabel", critical ? bodyPart : "General");
+        return "DoctorSelection";
+    }
+
+    @PostMapping("/select")
+    public String selectDoctor(@RequestParam Long doctorId, HttpSession session) {
+        Patient user = (Patient) session.getAttribute("user");
+        if (user == null) {
+            return "redirect:/login";
+        }
+        session.setAttribute("selectedDoctorId", doctorId);
+        return "redirect:/appointments/new?doctorId=" + doctorId;
     }
 
     @GetMapping("/{id}")

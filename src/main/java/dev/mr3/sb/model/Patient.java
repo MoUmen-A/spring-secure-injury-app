@@ -5,7 +5,7 @@ import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.OneToMany;
 
 import java.util.ArrayList;
@@ -29,15 +29,13 @@ public class Patient extends Person {
     // and if we can use @OneToMany,
     // we need to check if we can use it
     // with a List or if we need to use a Set
-    @OneToMany
-    @JoinColumn(name = "patient_id")
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL)
     private List<Appointment> reservations = new ArrayList<>();
 
     @ElementCollection
     private List<String> reports = new ArrayList<>();
 
-    @OneToMany
-    @JoinColumn(name = "patient_id")
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL)
     private List<Injury> injuries = new ArrayList<>();
 
     public Patient() {

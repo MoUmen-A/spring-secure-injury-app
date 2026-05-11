@@ -1,6 +1,7 @@
 package dev.mr3.sb.controller;
  
 import dev.mr3.sb.model.Patient;
+import dev.mr3.sb.service.AppointmentService;
 import dev.mr3.sb.service.AuthService;
 import dev.mr3.sb.service.AuthService.RegistrationResult;
 import jakarta.servlet.http.HttpSession;
@@ -16,9 +17,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 public class AuthController {
     private final AuthService authService;
+    private final AppointmentService appointmentService;
  
-    AuthController(AuthService authService) {
+    AuthController(AuthService authService, AppointmentService appointmentService) {
         this.authService = authService;
+        this.appointmentService = appointmentService;
     }
  
     @GetMapping("/login")
@@ -47,6 +50,7 @@ public class AuthController {
             return "redirect:/login"; // Shield the dashboard from non-logged-in users
         }
         model.addAttribute("patient", user);
+        model.addAttribute("appointments", appointmentService.findAppointmentsForPatient(user));
         return "Dashboard";
     }
  

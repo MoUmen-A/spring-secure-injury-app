@@ -1,6 +1,7 @@
 package dev.mr3.sb.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table (name = "injury")
@@ -15,16 +16,23 @@ public class Injury {
     private Long id;
 
     @Column
+    @NotBlank(message = "Injury type is required")
     private String type;
 
     @Column
+    @NotBlank(message = "Body part is required")
     private String bodyPart;
 
     @Column
     private boolean movable;
 
     @Column(nullable = false, columnDefinition = "TEXT")
+    @NotBlank(message = "Description is required")
     private String athleteDescription;
+
+    @ManyToOne
+    @JoinColumn(name = "patient_id")
+    private Patient patient;
 
     public Injury() {
     }
@@ -62,5 +70,13 @@ public class Injury {
     }
     public void setAthleteDescription(String athleteDescription) {
         this.athleteDescription = athleteDescription;
+    }
+
+    public Patient getPatient() {
+        return patient;
+    }
+
+    public void setPatient(Patient patient) {
+        this.patient = patient;
     }
 }

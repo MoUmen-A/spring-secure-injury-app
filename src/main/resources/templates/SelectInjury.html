@@ -1,5 +1,5 @@
 <!doctype html>
-<html xmlns:ng="http://thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,15 +8,22 @@
 
     <body>
     <h2> Report Your Injury</h2>
+
+    <p th:if="${success}" th:text="${success}" style="color: darkgreen;"></p>
+    <p th:if="${error}" th:text="${error}" style="color: darkred;"></p>
+    <h3 th:if="${assessmentResult}" th:text="${assessmentResult}" style="color: darkgreen;"></h3>
+
     <form th:action="@{/injury/submit}" th:object="${injury}" method="post">
 
        <label>Body Part: </label>
-        <select th:field="*{bodyPart}">
+        <select th:field="*{bodyPart}" required>
             <option th:each="part : ${bodyPart}" th:value="${part}" th:text="${part}"></option>
         </select><br/><br/><br/>
+        <span th:if="${#fields.hasErrors('bodyPart')}" th:errors="*{bodyPart}" style="color: darkred;"></span><br/>
 
         <label>Injury Type: </label>
-        <input type="text" th:field="*{type}" placeholder="Injury Type"><br/><br/><br/>
+        <input type="text" th:field="*{type}" placeholder="Injury Type" required><br/><br/><br/>
+        <span th:if="${#fields.hasErrors('type')}" th:errors="*{type}" style="color: darkred;"></span><br/>
 
         <label>Can you move the affected area?</label>
         <div>
@@ -28,11 +35,10 @@
         </div><br/><br/>
 
         <label>Describe the symptoms: </label><br/>
-        <textarea th:field="*{athleteDescription}"></textarea><br/><br/><br/>
+        <textarea th:field="*{athleteDescription}" required></textarea><br/><br/><br/>
+        <span th:if="${#fields.hasErrors('athleteDescription')}" th:errors="*{athleteDescription}" style="color: darkred;"></span><br/>
 
         <button type="submit">Submit for Assessment</button>
-
-        <h3 th:if="${assessmentResult}" th:text="${assessmentResult}" style="color: darkgreen;"></h3>
 
     </form>
     </body>

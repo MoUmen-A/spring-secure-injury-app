@@ -31,6 +31,13 @@ public class DoctorService {
         return doctorRepository.findBySpecialtyIgnoreCase(specialty.trim());
     }
 
+    public List<Doctor> findRecommendedDoctors(boolean critical, String bodyPart) {
+        if (!critical) {
+            return doctorRepository.findBySpecialtyIgnoreCase("General");
+        }
+        return findBySpecialty(bodyPart);
+    }
+
     public Optional<Doctor> findDoctorById(Long id) {
         return doctorRepository.findById(id);
     }

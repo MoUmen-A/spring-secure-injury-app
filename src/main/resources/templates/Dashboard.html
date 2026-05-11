@@ -1,16 +1,47 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Document</title>
 </head>
 <body>
-    welcome to dashboard
-<!--
-    we should display the appoint and dashbord
-    and triggers report after booking from
--->
+    <h1>Dashboard</h1>
+
+    <p>
+        Welcome,
+        <span th:text="${patient.name}">Patient</span>
+    </p>
+
+    <p th:if="${message}" th:text="${message}" style="color: darkgreen;"></p>
+
+    <a th:href="@{/injury/select}">
+        <button type="button">Report New Injury</button>
+    </a>
+
+    <h2>Your Appointments</h2>
+    <p th:if="${#lists.isEmpty(appointments)}">You do not have any appointments yet.</p>
+
+    <table th:if="${!#lists.isEmpty(appointments)}" border="1" cellpadding="8">
+        <thead>
+        <tr>
+            <th>Doctor</th>
+            <th>Specialty</th>
+            <th>Date</th>
+            <th>Day</th>
+            <th>Time</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="appointment : ${appointments}">
+            <td th:text="${appointment.doctor != null ? appointment.doctor.name : 'Doctor not assigned'}"></td>
+            <td th:text="${appointment.doctor != null ? appointment.doctor.specialty : '-'}"></td>
+            <td th:text="${appointment.appointmentDate}"></td>
+            <td th:text="${appointment.weekday}"></td>
+            <td th:text="${appointment.time}"></td>
+        </tr>
+        </tbody>
+    </table>
 
 </body>
 </html>
