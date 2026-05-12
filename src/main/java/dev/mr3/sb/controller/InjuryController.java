@@ -1,6 +1,5 @@
 package dev.mr3.sb.controller;
 
-
 import dev.mr3.sb.model.BodyPart;
 import dev.mr3.sb.model.Injury;
 import dev.mr3.sb.model.Patient;
@@ -16,16 +15,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-
-/**
- * Displays the injury selection form and submission flow.
- * Keywords: controller, injury, form
- */
 @Controller
-@RequestMapping ("/injury")
+@RequestMapping("/injury")
 public class InjuryController {
 
-
+    private static final String INJURY_PAGE = "SelectInjury";
+    private static final String LOGIN_REDIRECT = "redirect:/login";
+    private static final String DOCTOR_REDIRECT = "redirect:/doctors/recommended";
 
     private final InjuryService injuryService;
 
@@ -33,52 +29,64 @@ public class InjuryController {
         this.injuryService = injuryService;
     }
 
-    @GetMapping ("/select")
-
-    public String showForm(Model model, HttpSession session) {
-
-        Patient user = (Patient) session.getAttribute("user");
-        if (user == null) {
-            return "redirect:/login";
+    @GetMapping("/select")
+    public String openInjuryPage(HttpSession session, Model model) {
+        if (getLoggedPatient(session) == null) {
+            return LOGIN_REDIRECT;
         }
 
-        model.addAttribute("injury", new Injury());
-        model.addAttribute("bodyPart", BodyPart.values());
-        return "SelectInjury";
+        preparePage(model, new Injury());
+        return INJURY_PAGE;
     }
 
     @PostMapping("/submit")
-
-    public String submitInjury(@Valid @ModelAttribute Injury injury,
-                               BindingResult bindingResult,
-                               Model model,
+    public String submitInjury(@Valid @ModelAttribute("injury") Injury injury,
+                               BindingResult result,
                                HttpSession session,
+                               Model model,
                                RedirectAttributes redirectAttributes) {
-        Patient user = (Patient) session.getAttribute("user");
-        if (user == null) {
+        Patient patient = getLoggedPatient(session);
+
+        if (patient == null) {
             redirectAttributes.addFlashAttribute("error", "Please log in before reporting an injury.");
-            return "redirect:/login";
+            return LOGIN_REDIRECT;
         }
 
-        if (bindingResult.hasErrors() || hasInvalidRequiredFields(injury)) {
-            model.addAttribute("injury", injury);
-            model.addAttribute("bodyPart", BodyPart.values());
+        if (result.hasErrors() || isMissingData(injury)) {
+            preparePage(model, injury);
             model.addAttribute("error", "Please enter the injury type and description.");
-            return "SelectInjury";
+            return INJURY_PAGE;
         }
 
-        String result = injuryService.processAssessment(injury, user);
+        String message = injuryService.processAssessment(injury, patient);
+        saveInjuryForNextStep(session, injury);
+
+        redirectAttributes.addFlashAttribute("assessmentResult", message);
+        return DOCTOR_REDIRECT;
+    }
+
+    private Patient getLoggedPatient(HttpSession session) {
+        return (Patient) session.getAttribute("user");
+    }
+
+    private void preparePage(Model model, Injury injury) {
+        model.addAttribute("injury", injury);
+        model.addAttribute("bodyPart", BodyPart.values());
+    }
+
+    private void saveInjuryForNextStep(HttpSession session, Injury injury) {
         session.setAttribute("pendingInjuryId", injury.getId());
         session.setAttribute("pendingInjuryCritical", injuryService.checkCriticality(injury));
         session.setAttribute("pendingInjuryBodyPart", injury.getBodyPart());
-        redirectAttributes.addFlashAttribute("assessmentResult", result);
-        return "redirect:/doctors/recommended";
     }
 
-    private boolean hasInvalidRequiredFields(Injury injury) {
+    private boolean isMissingData(Injury injury) {
+        return isBlank(injury.getBodyPart())
+                || isBlank(injury.getType())
+                || isBlank(injury.getAthleteDescription());
+    }
 
-        return injury.getBodyPart() == null || injury.getBodyPart().isBlank()
-                || injury.getType() == null || injury.getType().isBlank()
-                || injury.getAthleteDescription() == null || injury.getAthleteDescription().isBlank();
+    private boolean isBlank(String value) {
+        return value == null || value.isBlank();
     }
 }
