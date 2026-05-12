@@ -12,45 +12,30 @@ import java.util.Optional;
 /**
  * Business logic placeholder for injury assessment and routing.
  * Keywords: service, injury, assessment
- */
-@Service
+ */@Service
 public class InjuryService {
-
-
-    private final InjuryRepository injuryRepo;
-    private final PatientRepository patientRepo;
-
-    public InjuryService(InjuryRepository injuryRepo, PatientRepository patientRepo) {
-        this.injuryRepo = injuryRepo;
-        this.patientRepo = patientRepo;
-    }
-
-    public String processAssessment(Injury injury, Patient patient) {
-        Patient managedPatient = patientRepo.getReferenceById(patient.getId());
-        injury.setPatient(managedPatient);
-
-        injuryRepo.save(injury);
-
-        if (checkCriticality(injury)) {
-            return "Your injury is critical";
-        }
-        return "Your injury is minor";
-    }
-
-    public List<Injury> findInjuriesForPatient(Patient patient) {
+  private final InjuryRepository injuryRepo;
+ private final PatientRepository patientRepo;
+  public InjuryService(InjuryRepository injuryRepo, PatientRepository patientRepo) {
+      this.injuryRepo = injuryRepo;
+      this.patientRepo = patientRepo;
+    }public String processAssessment(Injury injury, Patient patient) {
+  Patient managedPatient = patientRepo.getReferenceById(patient.getId());
+   injury.setPatient(managedPatient);
+   injuryRepo.save(injury);
+   if (checkCriticality(injury)) {
+            return "Your injury is critical";}
+        return "Your injury is minor";}
+public List<Injury> findInjuriesForPatient(Patient patient) {
         return injuryRepo.findByPatientId(patient.getId());
     }
-
-    public Optional<Injury> findById(Long injuryId) {
+ public Optional<Injury> findById(Long injuryId) {
         return injuryRepo.findById(injuryId);
     }
-
-    public boolean checkCriticality(Injury injury) {
-
-        if (!injury.isMovable()) {
-            return true;
-        }
-        return false;
-    }
-    
+ public boolean checkCriticality(Injury injury) {
+ if (!injury.isMovable()) {
+  return true;
+      }
+     return false;
+  }
 }
