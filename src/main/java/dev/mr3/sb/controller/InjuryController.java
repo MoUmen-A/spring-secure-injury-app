@@ -25,6 +25,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping ("/injury")
 public class InjuryController {
 
+
+
     private final InjuryService injuryService;
 
     public InjuryController(InjuryService injuryService) {
@@ -32,7 +34,9 @@ public class InjuryController {
     }
 
     @GetMapping ("/select")
+
     public String showForm(Model model, HttpSession session) {
+
         Patient user = (Patient) session.getAttribute("user");
         if (user == null) {
             return "redirect:/login";
@@ -44,6 +48,7 @@ public class InjuryController {
     }
 
     @PostMapping("/submit")
+
     public String submitInjury(@Valid @ModelAttribute Injury injury,
                                BindingResult bindingResult,
                                Model model,
@@ -71,6 +76,7 @@ public class InjuryController {
     }
 
     private boolean hasInvalidRequiredFields(Injury injury) {
+
         return injury.getBodyPart() == null || injury.getBodyPart().isBlank()
                 || injury.getType() == null || injury.getType().isBlank()
                 || injury.getAthleteDescription() == null || injury.getAthleteDescription().isBlank();

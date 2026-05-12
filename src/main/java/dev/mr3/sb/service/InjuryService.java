@@ -16,6 +16,7 @@ import java.util.Optional;
 @Service
 public class InjuryService {
 
+
     private final InjuryRepository injuryRepo;
     private final PatientRepository patientRepo;
 
