@@ -52,5 +52,5 @@ public class InjuryService {
         }
         return false;
     }
-    
+
 }
