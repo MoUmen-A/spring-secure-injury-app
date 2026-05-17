@@ -60,6 +60,8 @@ public class AppointmentController {
 						? doctorId
 						: (Long) session.getAttribute("selectedDoctorId");
 
+		model.addAttribute("doctors", doctorService.findAllDoctors());
+
 		if (selectedDoctorId == null) {
 			redirectAttributes.addFlashAttribute(
 					"error",
@@ -88,11 +90,12 @@ public class AppointmentController {
 		// Send data to HTML
 		model.addAttribute("doctor", doctor.get());
 		model.addAttribute("doctorId", selectedDoctorId);
+		model.addAttribute("lastDoctorId", selectedDoctorId.toString());
 
 		// Send cookie values to HTML
 		model.addAttribute("lastDoctorName", lastDoctorName);
-		model.addAttribute("lastAppointmentDate", lastAppointmentDate);
-		model.addAttribute("lastAppointmentTime", lastAppointmentTime);
+		model.addAttribute("lastDate", lastAppointmentDate);
+		model.addAttribute("lastTime", lastAppointmentTime);
 
 		return "Appointment";
 	}

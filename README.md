@@ -76,6 +76,35 @@ The application uses an in-memory H2 database for development. Data is reset eve
 
 ---
 
+## 🔐 Security and Email Configuration
+
+Passwords are stored with **BCrypt hashing** (not plain text). Login supports migrated legacy accounts by re-hashing old plain passwords after a successful login.
+
+Set these in `src/main/resources/application.properties` (or environment variables) for SMTP:
+
+* `spring.mail.host`
+* `spring.mail.port`
+* `spring.mail.username`
+* `spring.mail.password`
+* `app.mail.sender`
+* `app.mail.receiver`
+
+On each injury assessment submission, the app sends a notification email to `app.mail.receiver`.
+
+---
+
+## 🍪 How to Test Session Cookies
+
+1. Open browser DevTools → **Application/Storage** → **Cookies**.
+2. Login from `/login`; confirm a `JSESSIONID` cookie appears.
+3. Check attributes:
+   * `HttpOnly` should be enabled.
+   * `SameSite` should be `Lax`.
+4. Use app pages requiring login (e.g., `/dashboard`) and confirm access works while cookie exists.
+5. Logout from `/logout` and verify protected pages redirect to `/login` and session changes.
+
+---
+
 ## 📸 Screenshots
 
 *(Replace these with actual project screenshots before final submission)*

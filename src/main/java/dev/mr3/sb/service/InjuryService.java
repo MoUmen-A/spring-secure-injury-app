@@ -19,10 +19,12 @@ public class InjuryService {
 
     private final InjuryRepository injuryRepo;
     private final PatientRepository patientRepo;
+    private final AssessmentEmailService assessmentEmailService;
 
-    public InjuryService(InjuryRepository injuryRepo, PatientRepository patientRepo) {
+    public InjuryService(InjuryRepository injuryRepo, PatientRepository patientRepo, AssessmentEmailService assessmentEmailService) {
         this.injuryRepo = injuryRepo;
         this.patientRepo = patientRepo;
+        this.assessmentEmailService = assessmentEmailService;
     }
 
     public String processAssessment(Injury injury, Patient patient) {
@@ -31,10 +33,9 @@ public class InjuryService {
 
         injuryRepo.save(injury);
 
-        if (checkCriticality(injury)) {
-            return "Your injury is critical";
-        }
-        return "Your injury is minor";
+        String resultMessage = checkCriticality(injury) ? "Your injury is critical" : "Your injury is minor";
+        assessmentEmailService.sendAssessmentNotification(managedPatient, injury, resultMessage);
+        return resultMessage;
     }
 
     public List<Injury> findInjuriesForPatient(Patient patient) {

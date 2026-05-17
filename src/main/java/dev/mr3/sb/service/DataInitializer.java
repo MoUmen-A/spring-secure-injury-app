@@ -5,6 +5,7 @@ import dev.mr3.sb.model.Patient;
 import dev.mr3.sb.repository.DoctorRepository;
 import dev.mr3.sb.repository.PatientRepository;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
  
 import java.util.List;
@@ -14,10 +15,12 @@ public class DataInitializer implements CommandLineRunner {
  
     private final PatientRepository patientRepo;
     private final DoctorRepository doctorRepo;
- 
-    public DataInitializer(PatientRepository patientRepo, DoctorRepository doctorRepo) {
+    private final PasswordEncoder passwordEncoder;
+  
+    public DataInitializer(PatientRepository patientRepo, DoctorRepository doctorRepo, PasswordEncoder passwordEncoder) {
         this.patientRepo = patientRepo;
         this.doctorRepo = doctorRepo;
+        this.passwordEncoder = passwordEncoder;
     }
  
     @Override
@@ -29,7 +32,7 @@ public class DataInitializer implements CommandLineRunner {
             Patient testPatient = new Patient();
             testPatient.setName("Test User");
             testPatient.setEmail("test@example.com");
-            testPatient.setPassword("password123");
+            testPatient.setPassword(passwordEncoder.encode("password123"));
             testPatient.setAge(25);
             testPatient.setContact_no("123456789");
             testPatient.setAddress("123 Test St");

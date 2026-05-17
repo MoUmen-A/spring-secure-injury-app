@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/doctors")
-/**
+/*
  * Handles doctor-related endpoints for profile and specialty management.
  * Keywords: controller, doctor, scheduling
  */

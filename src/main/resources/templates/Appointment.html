@@ -19,7 +19,7 @@
                 <option th:each="doc : ${doctors}"
                         th:value="${doc.id}"
                         th:text="${doc.name}"
-                        th:selected="${lastDoctorId != null and lastDoctorId == ${doc.id}.toString()}">
+                        th:selected="${lastDoctorId != null and lastDoctorId == doc.id.toString()}">
                     Dr. Example
                 </option>
             </select>
